@@ -1,6 +1,7 @@
 package net.earthcomputer.clientcommands.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.earthcomputer.clientcommands.command.arguments.ClientBlockPredicateArgumentType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.server.command.ServerCommandSource;
@@ -14,49 +15,54 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
-import static com.mojang.brigadier.arguments.IntegerArgumentType.*;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
+import static com.mojang.brigadier.arguments.StringArgumentType.getString;
+import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.earthcomputer.clientcommands.command.ClientCommandManager.*;
-import static net.earthcomputer.clientcommands.command.arguments.ClientBlockPredicateArgumentType.*;
-import static net.minecraft.server.command.CommandManager.*;
+import static net.earthcomputer.clientcommands.command.arguments.ClientBlockPredicateArgumentType.ClientBlockPredicate;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
-public class FindBlockCommand {
+public class FindBlockContainsCommand  {
 
     public static final int MAX_RADIUS = 384;
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        addClientSideCommand("cfindblock");
+        addClientSideCommand("cfindblockcontains");
 
-        dispatcher.register(literal("cfindblock")
-            .then(argument("block", blockPredicate())
-                .executes(ctx -> findBlock(ctx.getSource(), getBlockPredicate(ctx, "block"), MAX_RADIUS, RadiusType.CARTESIAN))
+        dispatcher.register(literal("cfindblockcontains")
+            .then(argument("block", word())
+                .executes(ctx -> findBlock(ctx.getSource(), predicate(getString(ctx, "block")), MAX_RADIUS, RadiusType.CARTESIAN))
                 .then(argument("radius", integer(0, MAX_RADIUS))
-                    .executes(ctx -> findBlock(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN))
+                    .executes(ctx -> findBlock(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN))
                     .then(literal("cartesian")
-                        .executes(ctx -> findBlock(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN)))
+                        .executes(ctx -> findBlock(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN)))
                     .then(literal("rectangular")
-                        .executes(ctx -> findBlock(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.RECTANGULAR)))
+                        .executes(ctx -> findBlock(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.RECTANGULAR)))
 					.then(literal("All")
-						.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, 150, 0xffffff))
+						.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, 150, 0xffffff))
 						.then(argument("seconds", integer(0, 3600))
-							.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xffffff))
+							.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xffffff))
 							.then(literal("blue")
-								.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0x1c46c5)))
+								.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0x1c46c5)))
 							.then(literal("white")
-								.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xffffff)))
+								.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xffffff)))
 							.then(literal("red")
-								.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xc91818)))
+								.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xc91818)))
 							.then(literal("yellow")
-								.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xf4ed2f)))
+								.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0xf4ed2f)))
 							.then(literal("green")
-								.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0x20bb11)))
+								.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0x20bb11)))
 							.then(literal("black")
-								.executes(ctx -> findBlockGlow(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0x000000)))
+								.executes(ctx -> findBlockGlow(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.CARTESIAN, getInteger(ctx, "seconds"), 0x000000)))
 						)
 					)
                     .then(literal("taxicab")
-                        .executes(ctx -> findBlock(ctx.getSource(), getBlockPredicate(ctx, "block"), getInteger(ctx, "radius"), RadiusType.TAXICAB))))));
+                        .executes(ctx -> findBlock(ctx.getSource(), predicate(getString(ctx, "block")), getInteger(ctx, "radius"), RadiusType.TAXICAB))))));
     }
 
     public static int findBlock(ServerCommandSource source, ClientBlockPredicate block, int radius, RadiusType radiusType) {
@@ -205,7 +211,12 @@ public class FindBlockCommand {
 
         return found;
     }
-
+	private static ClientBlockPredicateArgumentType.ClientBlockPredicate predicate(String query) {
+		return blockPredicateFromLinePredicate(line -> line.contains(query)); //this is lambda
+	}
+	private static ClientBlockPredicateArgumentType.ClientBlockPredicate blockPredicateFromLinePredicate(Predicate<String> linePredicate) {
+		return (blockView, pos) -> linePredicate.test(blockView.getBlockState(pos).getBlock().getTranslationKey());
+	}
     public enum RadiusType {
         CARTESIAN(pos -> Math.sqrt(pos.getSquaredDistance(BlockPos.ORIGIN))),
         RECTANGULAR(pos -> Math.max(Math.max(Math.abs(pos.getX()), Math.abs(pos.getY())), Math.abs(pos.getZ()))),

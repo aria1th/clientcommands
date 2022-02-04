@@ -145,4 +145,11 @@ public class GlowCommand {
 
         return boundingBoxes.size();
     }
+	public static void glowBlocks(ServerCommandSource source, List<BlockPos> posList, int seconds, int color){
+
+		for (BlockPos pos : posList){
+			Box box = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX()+1, pos.getY()+1, pos.getZ()+1);
+			RenderQueue.addCuboid(RenderQueue.Layer.ON_TOP, box, box, color, seconds*20);
+		}
+	}
 }
